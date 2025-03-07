@@ -4,8 +4,6 @@ A Node.js API for managing school data with location-based features. The system 
 
 ## Database Hosting
 This project uses [FreeSQLDatabase.com](https://www.freesqldatabase.com/) for MySQL hosting:
-- Server: sql12.freesqldatabase.com
-- Database Name: sql12766412
 - Database Type: MySQL
 - Features:
   - Instant account activation
@@ -15,6 +13,15 @@ This project uses [FreeSQLDatabase.com](https://www.freesqldatabase.com/) for My
   - 24-hour support
 
 Note: The free database is automatically deleted after 1 month if not renewed.
+
+## Environment Variables Required
+```
+DB_HOST=your_database_host
+DB_NAME=your_database_name
+DB_USER=your_database_user
+DB_PASSWORD=your_database_password
+DB_PORT=3306
+```
 
 ## Live API
 Base URL: `https://educaseindassignment.onrender.com`
