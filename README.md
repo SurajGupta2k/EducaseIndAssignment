@@ -2,6 +2,20 @@
 
 A Node.js API for managing school data with location-based features. The system allows users to add new schools and retrieve a list of schools sorted by proximity to a user-specified location.
 
+## Database Hosting
+This project uses [FreeSQLDatabase.com](https://www.freesqldatabase.com/) for MySQL hosting:
+- Server: sql12.freesqldatabase.com
+- Database Name: sql12766412
+- Database Type: MySQL
+- Features:
+  - Instant account activation
+  - Remote connections allowed
+  - phpMyAdmin access
+  - 5MB free storage
+  - 24-hour support
+
+Note: The free database is automatically deleted after 1 month if not renewed.
+
 ## Live API
 Base URL: `https://educaseindassignment.onrender.com`
 
