@@ -22,6 +22,17 @@ const addSchool = async (req, res) => {
             return res.status(400).json({ error: error.details[0].message });
         }
 
+        // Test database connection
+        try {
+            await db.execute('SELECT 1');
+        } catch (dbError) {
+            console.error('Database connection error:', dbError);
+            return res.status(500).json({ 
+                error: 'Database connection failed',
+                details: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+            });
+        }
+
         // Insert school into database
         const [result] = await db.execute(
             'INSERT INTO schools (name, address, latitude, longitude) VALUES (?, ?, ?, ?)',
@@ -34,7 +45,10 @@ const addSchool = async (req, res) => {
         });
     } catch (err) {
         console.error('Error adding school:', err);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ 
+            error: 'Failed to add school',
+            details: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
     }
 };
 
