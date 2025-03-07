@@ -1,7 +1,7 @@
 const db = require('../config/db');
 const { schoolSchema } = require('../utils/validation');
 
-// Calculate distance between two points using Haversine formula
+// Calculates the distance between two points on Earth using their coordinates
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371; // Earth's radius in kilometers
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -14,15 +14,16 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
     return R * c;
 };
 
+// Adds a new school to the database
 const addSchool = async (req, res) => {
     try {
-        // Validate request body
+        // Make sure the school data is valid
         const { error, value } = schoolSchema.validate(req.body);
         if (error) {
             return res.status(400).json({ error: error.details[0].message });
         }
 
-        // Test database connection
+        // Check if we can connect to the database
         try {
             await db.execute('SELECT 1');
         } catch (dbError) {
@@ -33,7 +34,7 @@ const addSchool = async (req, res) => {
             });
         }
 
-        // Insert school into database
+        // Save the school in the database
         const [result] = await db.execute(
             'INSERT INTO schools (name, address, latitude, longitude) VALUES (?, ?, ?, ?)',
             [value.name, value.address, value.latitude, value.longitude]
@@ -52,9 +53,10 @@ const addSchool = async (req, res) => {
     }
 };
 
+// Gets all schools and sorts them by distance from given coordinates
 const listSchools = async (req, res) => {
     try {
-        // Validate query parameters
+        // Make sure we have coordinates to work with
         const { latitude, longitude } = req.query;
         if (!latitude || !longitude) {
             return res.status(400).json({ error: 'Latitude and longitude are required' });
@@ -63,23 +65,23 @@ const listSchools = async (req, res) => {
         const userLat = parseFloat(latitude);
         const userLon = parseFloat(longitude);
 
-        // Validate coordinates
+        // Make sure the coordinates are valid
         if (isNaN(userLat) || isNaN(userLon) || 
             userLat < -90 || userLat > 90 || 
             userLon < -180 || userLon > 180) {
             return res.status(400).json({ error: 'Invalid coordinates' });
         }
 
-        // Get all schools
+        // Get all schools from database
         const [schools] = await db.query('SELECT * FROM schools');
 
-        // Calculate distance for each school and sort
+        // Figure out how far each school is from the given location
         const schoolsWithDistance = schools.map(school => ({
             ...school,
             distance: calculateDistance(userLat, userLon, school.latitude, school.longitude)
         }));
 
-        // Sort by distance
+        // Put closest schools first
         schoolsWithDistance.sort((a, b) => a.distance - b.distance);
 
         res.json(schoolsWithDistance);
@@ -89,23 +91,24 @@ const listSchools = async (req, res) => {
     }
 };
 
+// Removes a school from the database
 const deleteSchool = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Validate if id is provided
+        // Make sure we have a school ID
         if (!id) {
             return res.status(400).json({ error: 'School ID is required' });
         }
 
-        // Check if school exists
+        // Make sure the school exists before trying to delete it
         const [school] = await db.execute('SELECT * FROM schools WHERE id = ?', [id]);
         
         if (school.length === 0) {
             return res.status(404).json({ error: 'School not found' });
         }
 
-        // Delete the school
+        // Remove the school from database
         await db.execute('DELETE FROM schools WHERE id = ?', [id]);
 
         res.json({ message: 'School deleted successfully' });
